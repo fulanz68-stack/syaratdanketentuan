@@ -1,0 +1,1812 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sewa LinkedIn</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --surface: #111111;
+            --text: #ffffff;
+            --text-secondary: #b0b0b0;
+            --text-light: #888888;
+            --primary: #0a66c2;
+            --border: #222222;
+            --border-light: #333333;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            font-weight: 300;
+            font-size: 14px;
+        }
+        
+        h1, h2, h3 {
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        
+        /* Calendar Icon with Animation */
+        .calendar-icon {
+            position: fixed;
+            top: 25px;
+            left: 25px;
+            cursor: pointer;
+            z-index: 100;
+            font-size: 24px;
+            animation: calendarFloat 3s ease-in-out infinite;
+            transform-origin: center;
+        }
+        
+        @keyframes calendarFloat {
+            0%, 100% { 
+                transform: translateY(0) rotate(0deg); 
+            }
+            50% { 
+                transform: translateY(-5px) rotate(5deg); 
+            }
+        }
+        
+        .calendar-icon:hover {
+            animation: calendarSpin 0.6s ease;
+        }
+        
+        @keyframes calendarSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+        
+        /* Modal Content */
+        .modal-content {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+        }
+        
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+        
+        .modal-backlight {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            filter: blur(30px);
+            z-index: -1;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .modal-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 24px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+        
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+        }
+        
+        .schedule-info {
+            margin-bottom: 25px;
+        }
+        
+        .schedule-item {
+            margin-bottom: 20px;
+            padding: 18px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .schedule-item h3 {
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: var(--text);
+            font-weight: 700;
+        }
+        
+        .schedule-item p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            font-weight: 400;
+        }
+        
+        .time-highlight {
+            color: #00ff9d;
+            font-weight: 700;
+        }
+        
+        .days-highlight {
+            color: #ffffff;
+            font-weight: 700;
+            background: var(--primary);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        
+        .libur-text {
+            color: #00ff9d;
+            font-weight: 700;
+        }
+        
+        .modal-note {
+            font-size: 15px;
+            color: var(--text);
+            font-weight: 500;
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+        
+        /* Video Banner */
+        .banner-container {
+            margin: 0 auto 40px;
+            max-width: 600px;
+            height: 160px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .banner-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to right, rgba(10, 102, 194, 0.2), rgba(10, 102, 194, 0));
+            z-index: 1;
+        }
+        
+        /* Hero */
+        .hero {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid var(--border);
+            position: relative;
+        }
+        
+        /* Updated: Text "Sewa Mingguan" lebih kecil dan warna putih */
+        .hero-title {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #ffffff;
+            font-weight: 800;
+        }
+        
+        .price-container {
+            position: relative;
+            display: inline-block;
+            margin: 20px 0 10px;
+        }
+        
+        /* Updated Price Backlight - Lebih tebal dan putih kebiruan */
+        .price-backlight {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 350px; /* Sedikit lebih kecil */
+            height: 160px; /* Sedikit lebih kecil */
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.25) 0%, /* Lebih pudar */
+                rgba(173, 216, 230, 0.35) 50%, /* Lebih pudar */
+                rgba(255, 255, 255, 0.25) 100%); /* Lebih pudar */
+            border-radius: 50%;
+            filter: blur(60px); /* Lebih kecil */
+            z-index: 1;
+            animation: priceGlow 3s ease-in-out infinite;
+        }
+        
+        @keyframes priceGlow {
+            0%, 100% { 
+                opacity: 0.6; /* Lebih pudar */
+                transform: translate(-50%, -50%) scale(1);
+            }
+            50% { 
+                opacity: 0.8; /* Lebih pudar */
+                transform: translate(-50%, -50%) scale(1.05);
+            }
+        }
+        
+        .price-wrapper {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .currency {
+            font-size: 22px; /* Diperkecil */
+            color: var(--text-secondary);
+            font-weight: 600;
+            position: absolute;
+            left: -30px; /* Diperkecil */
+            top: 16px; /* Diperkecil */
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.2); /* Lebih pudar */
+        }
+        
+        .price {
+            font-size: 65px; /* Diperkecil */
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -3px;
+            text-shadow: 0 2px 15px rgba(255, 255, 255, 0.15); /* Lebih pudar */
+            position: relative;
+        }
+        
+        .bonus-text {
+            font-size: 11px;
+            color: #00ff9d;
+            margin-top: 5px;
+            font-weight: 400;
+        }
+        
+        /* Detail Payment Section - Minimalist */
+        .detail-payment-section {
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .detail-payment-title {
+            font-size: 17px; /* Diperkecil */
+            color: var(--text);
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .detail-payment-table {
+            width: 100%;
+            max-width: 380px; /* Lebih kecil */
+            margin: 0 auto;
+            border-collapse: collapse;
+            font-size: 13px; /* Diperkecil */
+        }
+        
+        .detail-payment-table tbody tr {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .detail-payment-table tbody tr:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-payment-table td {
+            padding: 14px 18px; /* Lebih kecil */
+            text-align: left;
+            color: var(--text);
+        }
+        
+        .detail-payment-table td:first-child {
+            font-weight: 600;
+            width: 55%;
+        }
+        
+        .detail-payment-table td:last-child {
+            font-weight: 700;
+            color: #00ff9d;
+            text-align: right;
+            width: 45%;
+        }
+        
+        /* Special Rules Section - Minimalist */
+        .special-rules-section {
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .special-rules-title {
+            font-size: 17px; /* Diperkecil */
+            color: var(--text);
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .special-rules-table {
+            width: 100%;
+            max-width: 380px; /* Lebih kecil */
+            margin: 0 auto;
+            border-collapse: collapse;
+            font-size: 13px; /* Diperkecil */
+        }
+        
+        .special-rules-table tbody tr {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .special-rules-table tbody tr:last-child {
+            border-bottom: none;
+        }
+        
+        .special-rules-table td {
+            padding: 14px 0;
+            text-align: left;
+            color: var(--text);
+            vertical-align: top;
+        }
+        
+        .special-rules-table td:first-child {
+            width: 30px;
+            font-weight: 700;
+            color: #00ff9d;
+            text-align: center;
+            padding-right: 10px;
+        }
+        
+        .special-rules-table td:last-child {
+            font-weight: 400;
+            text-align: left;
+            line-height: 1.5;
+        }
+        
+        /* Notice Section - Simple & Small */
+        .notice-section {
+            margin: 25px 0;
+            text-align: center;
+        }
+        
+        .notice-title {
+            font-size: 16px;
+            color: #FFB347;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .notice-content {
+            max-width: 500px;
+            margin: 0 auto;
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            text-align: left;
+            background: rgba(255, 179, 71, 0.05);
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid rgba(255, 179, 71, 0.1);
+        }
+        
+        .notice-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .notice-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .notice-icon {
+            font-size: 16px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        .notice-text {
+            flex: 1;
+        }
+        
+        /* Criteria */
+        .section {
+            margin-bottom: 30px; /* Lebih kecil */
+        }
+        
+        h2 {
+            font-size: 15px; /* Diperkecil */
+            margin-bottom: 18px; /* Lebih kecil */
+            color: var(--text);
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        
+        /* Criteria List */
+        .criteria-list {
+            list-style: none;
+        }
+        
+        .criteria-item {
+            padding: 11px 0; /* Lebih kecil */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            color: var(--text);
+            font-size: 13px; /* Diperkecil */
+            font-weight: 400;
+        }
+        
+        .criteria-item:last-child {
+            border-bottom: none;
+        }
+        
+        .criteria-check {
+            color: var(--primary);
+            margin-right: 10px; /* Lebih kecil */
+            font-size: 13px; /* Diperkecil */
+            font-weight: 700;
+        }
+        
+        /* LinkedIn Posts Carousel - Smaller */
+        .posts-section h2 {
+            font-size: 15px; /* Diperkecil */
+            margin-bottom: 18px; /* Lebih kecil */
+            color: var(--text);
+        }
+        
+        .posts-carousel {
+            position: relative;
+            height: 350px;
+            overflow: hidden;
+            border-radius: 8px;
+            margin-bottom: 20px; /* Lebih kecil */
+        }
+        
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .linkedin-post {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), 
+                       opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+        }
+        
+        .post-active {
+            transform: translateX(0) scale(1);
+            opacity: 1;
+            z-index: 2;
+        }
+        
+        .post-next {
+            transform: translateX(100%) scale(0.9);
+            opacity: 0;
+            z-index: 1;
+        }
+        
+        .post-prev {
+            transform: translateX(-100%) scale(0.9);
+            opacity: 0;
+            z-index: 1;
+        }
+        
+        .carousel-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .carousel-dot {
+            width: 8px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .carousel-dot.active {
+            background: var(--primary);
+            transform: scale(1.2);
+        }
+        
+        .carousel-indicator {
+            position: absolute;
+            bottom: 12px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 11px;
+            z-index: 3;
+            pointer-events: none;
+        }
+        
+        .post-header {
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .post-avatar {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #0a66c2, #0077b6);
+            border-radius: 50%;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+            font-size: 14px;
+        }
+        
+        .post-author-info h4 {
+            font-size: 13px;
+            font-weight: 700;
+            color: #000000;
+            margin-bottom: 2px;
+        }
+        
+        .post-author-info p {
+            font-size: 11px;
+            color: rgba(0, 0, 0, 0.6);
+            font-weight: 300;
+        }
+        
+        .post-time {
+            font-size: 10px;
+            color: rgba(0, 0, 0, 0.5);
+            margin-left: auto;
+        }
+        
+        .post-content {
+            padding: 14px;
+            font-size: 12.5px;
+            line-height: 1.6;
+            color: #000000;
+            font-weight: 300;
+            height: 200px;
+            overflow-y: auto;
+        }
+        
+        .post-content strong {
+            color: #000000;
+            font-weight: 600;
+        }
+        
+        .post-stats {
+            padding: 10px 14px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            font-size: 11px;
+            color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+        }
+        
+        /* Payment Method - Individual Boxes */
+        .payment-section {
+            margin: 35px 0; /* Lebih kecil */
+            padding: 20px; /* Lebih kecil */
+            text-align: center;
+        }
+        
+        .payment-title {
+            font-size: 17px; /* Diperkecil */
+            color: var(--text);
+            font-weight: 700;
+            margin-bottom: 20px; /* Lebih kecil */
+            text-align: center;
+        }
+        
+        .payment-container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .payment-row {
+            display: flex;
+            justify-content: center;
+            gap: 8px; /* Lebih kecil */
+            margin-bottom: 8px; /* Lebih kecil */
+            flex-wrap: wrap;
+        }
+        
+        .payment-box {
+            padding: 10px 16px; /* Lebih kecil */
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 6px;
+            font-size: 14px; /* Diperkecil */
+            color: var(--text);
+            font-weight: 600;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.03);
+            min-width: 90px; /* Lebih kecil */
+            flex: 1;
+            max-width: 110px; /* Lebih kecil */
+        }
+        
+        /* Logo Container - Modified untuk mencegah klik dan download */
+        .logo-container {
+            text-align: center;
+            margin: 25px 0; /* Lebih kecil */
+            position: relative;
+        }
+        
+        .logo-image {
+            max-width: 140px; /* Lebih kecil */
+            height: auto;
+            filter: brightness(1.1);
+            pointer-events: none; /* Mencegah interaksi */
+            user-select: none; /* Mencegah seleksi */
+            -webkit-user-select: none; /* Untuk browser WebKit */
+            -moz-user-select: none; /* Untuk Firefox */
+            -ms-user-select: none; /* Untuk IE/Edge */
+        }
+        
+        /* Overlay untuk mencegah klik kanan */
+        .logo-protect {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 5;
+            cursor: default;
+        }
+        
+        /* Referral Section Minimalist */
+        .referral-section {
+            margin: 20px 0 35px; /* Lebih kecil */
+            padding: 20px; /* Lebih kecil */
+            text-align: center;
+        }
+        
+        .referral-title {
+            font-size: 17px; /* Diperkecil */
+            margin-bottom: 15px; /* Lebih kecil */
+            color: var(--text);
+            font-weight: 700;
+            text-align: center;
+        }
+        
+        .referral-subtitle {
+            font-size: 13px; /* Diperkecil */
+            color: var(--text-secondary);
+            margin-bottom: 20px; /* Lebih kecil */
+            font-weight: 400;
+        }
+        
+        .referral-table {
+            width: 100%;
+            max-width: 380px; /* Lebih kecil */
+            margin: 0 auto 25px; /* Lebih kecil */
+            border-collapse: collapse;
+            font-size: 13px; /* Diperkecil */
+        }
+        
+        .referral-table tbody tr {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .referral-table tbody tr:last-child {
+            border-bottom: none;
+        }
+        
+        .referral-table td {
+            padding: 12px 15px; /* Lebih kecil */
+            text-align: center;
+            color: var(--text);
+        }
+        
+        .referral-table td:first-child {
+            font-weight: 600;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            width: 50%;
+        }
+        
+        .referral-table td:last-child {
+            font-weight: 700;
+            width: 50%;
+            position: relative;
+        }
+        
+        /* Bintang kecil untuk +1$ */
+        .star-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            font-size: 10px;
+            color: #FFB347;
+            background: rgba(255, 179, 71, 0.1);
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 179, 71, 0.3);
+        }
+        
+        /* Referral Bonus Table - Minimalist */
+        .referral-bonus-table {
+            width: 100%;
+            max-width: 380px; /* Lebih kecil */
+            margin: 25px auto; /* Lebih kecil */
+            border-collapse: collapse;
+            font-size: 13px; /* Diperkecil */
+        }
+        
+        .referral-bonus-table thead th {
+            padding: 14px 12px; /* Lebih kecil */
+            background: rgba(0, 255, 157, 0.1);
+            border: 1px solid rgba(0, 255, 157, 0.3);
+            font-size: 14px; /* Diperkecil */
+            font-weight: 700;
+            color: #00ff9d;
+            text-align: center;
+        }
+        
+        .referral-bonus-table tbody td {
+            padding: 14px 12px; /* Lebih kecil */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 13px; /* Diperkecil */
+            color: var(--text);
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .referral-bonus-table tbody tr:first-child td {
+            border-top: none;
+        }
+        
+        .referral-bonus-table tbody tr td:first-child {
+            font-weight: 600;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            width: 60%;
+        }
+        
+        .referral-bonus-table tbody tr td:last-child {
+            font-weight: 800;
+            color: #00ff9d;
+            font-size: 15px; /* Diperkecil */
+            width: 40%;
+        }
+        
+        /* Referrer Button - Diperkecil dan warna putih dengan text hitam */
+        .referrer-btn-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .referrer-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: #ffffff; /* Warna putih */
+            color: #000000; /* Warna text hitam */
+            text-decoration: none;
+            padding: 12px 24px; /* Diperkecil dari 16px 32px */
+            font-size: 14px; /* Diperkecil dari 16px */
+            font-weight: 700;
+            border-radius: 6px;
+            border: none;
+            transition: all 0.2s ease;
+            max-width: 220px; /* Diperkecil dari 280px */
+            width: 100%;
+            border: 2px solid transparent;
+        }
+        
+        .referrer-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 255, 255, 0.3);
+            background: #f0f0f0; /* Putih lebih gelap saat hover */
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+        
+        /* WhatsApp Section dengan Gradient - Text hitam */
+        .whatsapp-section {
+            text-align: center;
+            padding: 35px 0 45px; /* Lebih kecil */
+            margin-top: 25px; /* Lebih kecil */
+            border-top: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .whatsapp-gradient {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 120px; /* Lebih kecil */
+            background: linear-gradient(to top, 
+                rgba(255, 255, 255, 0.1) 0%,
+                rgba(255, 255, 255, 0.05) 30%,
+                transparent 100%);
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        .whatsapp-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .whatsapp-info {
+            font-size: 13px; /* Diperkecil */
+            color: var(--text-secondary);
+            margin-bottom: 20px; /* Lebih kecil */
+            line-height: 1.6;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .whatsapp-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: #25D366;
+            color: #000000; /* Text hitam */
+            text-decoration: none;
+            padding: 16px 32px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 8px;
+            border: none;
+            margin: 0 auto;
+            transition: all 0.2s ease;
+            max-width: 280px;
+            width: 100%;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .whatsapp-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37, 211, 102, 0.3);
+        }
+        
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px 0 10px;
+            font-size: 11px;
+            color: var(--text-light);
+            opacity: 0.5;
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* Responsive */
+        @media (max-width: 600px) {
+            body {
+                padding: 15px;
+            }
+            
+            .calendar-icon {
+                top: 20px;
+                left: 20px;
+                font-size: 20px;
+            }
+            
+            .hero-title {
+                font-size: 20px;
+            }
+            
+            .price {
+                font-size: 56px;
+                letter-spacing: -2px;
+            }
+            
+            .currency {
+                font-size: 20px;
+                left: -28px;
+                top: 14px;
+            }
+            
+            .price-backlight {
+                width: 280px; /* Lebih kecil untuk mobile */
+                height: 120px; /* Lebih kecil untuk mobile */
+                filter: blur(50px); /* Lebih kecil untuk mobile */
+            }
+            
+            .banner-container {
+                height: 130px;
+            }
+            
+            .detail-payment-table,
+            .special-rules-table,
+            .referral-table,
+            .referral-bonus-table {
+                max-width: 320px;
+                font-size: 12px; /* Lebih kecil untuk mobile */
+            }
+            
+            .detail-payment-table td {
+                padding: 12px 15px; /* Lebih kecil untuk mobile */
+            }
+            
+            .special-rules-table td {
+                padding: 12px 0; /* Lebih kecil untuk mobile */
+            }
+            
+            .referral-table td {
+                padding: 10px 12px; /* Lebih kecil untuk mobile */
+            }
+            
+            /* Notice Responsive */
+            .notice-section {
+                margin: 20px 0;
+            }
+            
+            .notice-content {
+                padding: 12px;
+                font-size: 12px;
+                max-width: 100%;
+            }
+            
+            .notice-item {
+                margin-bottom: 10px;
+                padding-bottom: 10px;
+                gap: 8px;
+            }
+            
+            .notice-icon {
+                font-size: 14px;
+            }
+            
+            .logo-image {
+                max-width: 120px;
+            }
+            
+            h2 {
+                font-size: 14px; /* Lebih kecil untuk mobile */
+            }
+            
+            .posts-section h2 {
+                font-size: 14px; /* Lebih kecil untuk mobile */
+            }
+            
+            .posts-carousel {
+                height: 320px;
+            }
+            
+            .post-content {
+                height: 180px;
+            }
+            
+            .payment-box {
+                padding: 8px 12px; /* Lebih kecil untuk mobile */
+                font-size: 13px; /* Lebih kecil untuk mobile */
+                min-width: 80px; /* Lebih kecil untuk mobile */
+                max-width: 100px; /* Lebih kecil untuk mobile */
+            }
+            
+            .payment-row {
+                gap: 6px; /* Lebih kecil untuk mobile */
+                margin-bottom: 6px; /* Lebih kecil untuk mobile */
+            }
+            
+            .referrer-btn {
+                padding: 10px 20px; /* Diperkecil untuk mobile */
+                font-size: 13px; /* Diperkecil untuk mobile */
+                max-width: 200px; /* Diperkecil untuk mobile */
+            }
+            
+            .whatsapp-btn {
+                padding: 14px 24px;
+                font-size: 14px;
+                max-width: 250px;
+            }
+            
+            .modal-content {
+                padding: 20px;
+                width: 95%;
+            }
+            
+            .modal-title {
+                font-size: 20px;
+            }
+            
+            .schedule-item h3 {
+                font-size: 15px;
+            }
+            
+            .schedule-item p {
+                font-size: 13px;
+            }
+            
+            .whatsapp-gradient {
+                height: 80px; /* Lebih kecil untuk mobile */
+            }
+            
+            .star-badge {
+                width: 14px;
+                height: 14px;
+                font-size: 9px;
+                top: -3px;
+                right: -3px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Calendar Icon -->
+    <div class="calendar-icon" id="calendarIcon">
+        📅
+    </div>
+    
+    <!-- Modal Schedule -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content">
+            <div class="modal-backlight"></div>
+            <div class="modal-header">
+                <div class="modal-title">
+                    Jadwal Pengumpulan Akun
+                </div>
+                <button class="close-btn" id="closeModal">×</button>
+            </div>
+            
+            <div class="schedule-info">
+                <div class="schedule-item">
+                    <h3>MINGGU - JUM'AT</h3>
+                    <p>New Acc : <span class="time-highlight">21:00 - 05:00 WIB</span><br>
+                    Unrestrict : <span class="time-highlight">05:00 - 09:00 WIB</span></p>
+                </div>
+                
+                <div class="schedule-item">
+                    <h3>SABTU - <span class="libur-text">(Libur)</span></h3>
+                    <p>Hari Settle Payment</p>
+                </div>
+                
+                <div class="schedule-item">
+                    <h3>MINGGU</h3>
+                    <p>Hari Payment 💰</p>
+                </div>
+            </div>
+            
+            <div class="modal-note">
+                Informasi tersebut akan diumumkan di grup 🔔
+            </div>
+        </div>
+    </div>
+    
+    <!-- Video Banner -->
+    <div class="banner-container">
+        <!-- Ganti "banner.mp4" dengan nama file video Anda -->
+        <video class="banner-video" autoplay muted loop playsinline>
+            <source src="banner.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <div class="video-overlay"></div>
+    </div>
+    
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-title">Sewa Linkedin 🇮🇩 </div>
+        <div class="price-container">
+            <div class="price-backlight"></div>
+            <div class="price-wrapper">
+                <span class="currency">Rp</span>
+                <span class="price">190.000</span>
+            </div>
+        </div>
+        <div class="bonus-text">*ada Bonus +80.000 setiap berhasil Un-Restrict</div>
+    </section>
+    
+    <!-- Detail Payment Section - Minimalist -->
+    <section class="detail-payment-section">
+        <div class="detail-payment-title">Detail Payment</div>
+        
+        <table class="detail-payment-table">
+            <tbody>
+                <tr>
+                    <td>Akun normal</td>
+                    <td>Rp. 190.000</td>
+                </tr>
+                <tr>
+                    <td>Akun Un-Restrict</td>
+                    <td>Rp. 270.000</td>
+                </tr>
+                <tr>
+                    <td>Jadwal Gajian</td>
+                    <td>Minggu</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+    
+    <!-- Special Rules Section - Minimalist -->
+    <section class="special-rules-section">
+        <div class="special-rules-title">Spesial Rules</div>
+        
+        <table class="special-rules-table">
+            <tbody>
+                <tr>
+                    <td>•</td>
+                    <td>jika akun kalian belum mencapai 1 minggu sudah Restrict, tetap dapet kompensasi 100% payment Rp. 190.000</td>
+                </tr>
+                <tr>
+                    <td>•</td>
+                    <td>bisa 1 payment, dengan yang di undang (Referral)</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+    
+    <!-- Notice Section - Simple & Small -->
+    <section class="notice-section">
+        <div class="notice-title">Notice ⚠️</div>
+        
+        <div class="notice-content">
+            <div class="notice-item">
+                <div class="notice-icon">📌</div>
+                <div class="notice-text">
+                    Join Grup artinya Setuju dengan segala peraturan yang ada
+                </div>
+            </div>
+            
+            <div class="notice-item">
+                <div class="notice-icon">⚠️</div>
+                <div class="notice-text">
+                    Bagi yang Account nya daily use, atau banyak keperluan di dalamnya, kami tidak merekomendasikan ya. Karna dalam masa sewa rawan terjadi yang namanya Restrict (batasan sementara)
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Criteria -->
+    <section class="section">
+        <h2>Kriteria Akun LinkedIn</h2>
+        <ul class="criteria-list">
+            <li class="criteria-item">
+                <span class="criteria-check">✓</span>
+                <span>Pembuatan minimal 1 tahun</span>
+            </li>
+            <li class="criteria-item">
+                <span class="criteria-check">✓</span>
+                <span>Minimal 30+ koneksi</span>
+            </li>
+            <li class="criteria-item">
+                <span class="criteria-check">✓</span>
+                <span>Tidak ada riwayat change email</span>
+            </li>
+            <li class="criteria-item">
+                <span class="criteria-check">✓</span>
+                <span>Bukan hasil jual/beli</span>
+            </li>
+            <li class="criteria-item">
+                <span class="criteria-check">✓</span>
+                <span>Tidak limit permintaan koneksi</span>
+            </li>
+            <li class="criteria-item">
+                <span class="criteria-check">✓</span>
+                <span>Nonaktif A2F (two-factor)</span>
+            </li>
+            <li class="criteria-item">
+                <span class="criteria-check">✓</span>
+                <span>Country Indonesia</span>
+            </li>
+        </ul>
+    </section>
+    
+    <!-- Functionality -->
+    <section class="section">
+        <h2>Fungsional 🌎</h2>
+        <p>Untuk kebutuhan push engagement dan marketing global.</p>
+    </section>
+    
+    <!-- LinkedIn Posts Carousel -->
+    <section class="section posts-section">
+        <h2>Contoh iklan</h2>
+        
+        <div class="posts-carousel" id="postsCarousel">
+            <div class="carousel-container">
+                <!-- Post 1: Kesehatan -->
+                <div class="linkedin-post post-active" data-post="1">
+                    <div class="post-header">
+                        <div class="post-avatar">JW</div>
+                        <div class="post-author-info">
+                            <h4>Dr. James Wilson • Medical Director</h4>
+                            <p>Global Health Institute • New York</p>
+                        </div>
+                        <div class="post-time">5 hours ago</div>
+                    </div>
+                    <div class="post-content">
+                        <strong>Revolutionizing Remote Healthcare</strong>
+                        <br><br>
+                        Our telehealth platform has served 50,000+ patients globally in Q3 2024.
+                        <br><br>
+                        📊 94% patient satisfaction rate
+                        <br>
+                        ⏱️ Average wait time: 4 minutes
+                        <br>
+                        🌍 Available in 15+ countries
+                        <br>
+                        💊 85% medication adherence improvement
+                        <br><br>
+                        Digital health isn't the future—it's the present.
+                        <br><br>
+                        #HealthcareInnovation #Telemedicine #DigitalHealth
+                    </div>
+                    <div class="post-stats">
+                        <div>👍 234</div>
+                        <div style="margin-left: 15px;">💬 67</div>
+                        <div style="margin-left: 15px;">🔄 42</div>
+                        <div style="margin-left: auto;">5.8k views</div>
+                    </div>
+                </div>
+                
+                <!-- Post 2: Web3 -->
+                <div class="linkedin-post post-next" data-post="2">
+                    <div class="post-header">
+                        <div class="post-avatar">SM</div>
+                        <div class="post-author-info">
+                            <h4>Sarah Miller • Web3 Strategist</h4>
+                            <p>Blockchain Solutions • Singapore</p>
+                        </div>
+                        <div class="post-time">1 day ago</div>
+                    </div>
+                    <div class="post-content">
+                        <strong>Web3 Adoption in Traditional Finance</strong>
+                        <br><br>
+                        Just completed a 6-month pilot with major banks. Results:
+                        <br><br>
+                        🔗 3x faster transaction processing
+                        <br>
+                        💰 70% cost reduction in cross-border transfers
+                        <br>
+                        🔒 Zero security breaches with smart contract audits
+                        <br>
+                        📈 $2.5M in operational savings
+                        <br><br>
+                        The future is decentralized, transparent, and efficient.
+                        <br><br>
+                        #Web3 #Blockchain #Fintech #DeFi
+                    </div>
+                    <div class="post-stats">
+                        <div>👍 189</div>
+                        <div style="margin-left: 15px;">💬 58</div>
+                        <div style="margin-left: 15px;">🔄 36</div>
+                        <div style="margin-left: auto;">4.7k views</div>
+                    </div>
+                </div>
+                
+                <!-- Post 3: AI -->
+                <div class="linkedin-post" data-post="3">
+                    <div class="post-header">
+                        <div class="post-avatar">TC</div>
+                        <div class="post-author-info">
+                            <h4>Thomas Chen • AI Research Lead</h4>
+                            <p>Tech Innovations • San Francisco</p>
+                        </div>
+                        <div class="post-time">2 days ago</div>
+                    </div>
+                    <div class="post-content">
+                        <strong>AI-Powered Marketing Analytics</strong>
+                        <br><br>
+                        Our new AI system analyzed 2M+ marketing campaigns:
+                        <br><br>
+                        🤖 92% accuracy in predicting campaign success
+                        <br>
+                        📊 40% increase in conversion rates
+                        <br>
+                        ⚡ Real-time optimization suggestions
+                        <br>
+                        💡 Generated 15,000+ creative variations
+                        <br><br>
+                        Data-driven decisions powered by AI are no longer optional.
+                        <br><br>
+                        #ArtificialIntelligence #Marketing #Analytics #AI
+                    </div>
+                    <div class="post-stats">
+                        <div>👍 312</div>
+                        <div style="margin-left: 15px;">💬 89</div>
+                        <div style="margin-left: 15px;">🔄 51</div>
+                        <div style="margin-left: auto;">7.2k views</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="carousel-indicator" id="carouselIndicator">
+                Klik atau scroll untuk melihat postingan lain
+            </div>
+        </div>
+        
+        <div class="carousel-controls">
+            <div class="carousel-dot active" data-index="0"></div>
+            <div class="carousel-dot" data-index="1"></div>
+            <div class="carousel-dot" data-index="2"></div>
+        </div>
+    </section>
+    
+    <!-- Payment Method - Individual Boxes -->
+    <section class="payment-section">
+        <div class="payment-title">Payment Method E-WALLET & BANK</div>
+        
+        <div class="payment-container">
+            <!-- Baris 1: DANA OVO GOPAY LINK -->
+            <div class="payment-row">
+                <div class="payment-box">DANA</div>
+                <div class="payment-box">OVO</div>
+                <div class="payment-box">GOPAY</div>
+                <div class="payment-box">LINK</div>
+            </div>
+            
+            <!-- Baris 2: BRI BCA BNI MANDIRI -->
+            <div class="payment-row">
+                <div class="payment-box">BRI</div>
+                <div class="payment-box">BCA</div>
+                <div class="payment-box">BNI</div>
+                <div class="payment-box">MANDIRI</div>
+            </div>
+            
+            <!-- Baris 3: BANK JAGO BSI -->
+            <div class="payment-row">
+                <div class="payment-box" style="flex: 1; max-width: 150px;">Bank Jago</div>
+                <div class="payment-box" style="flex: 1; max-width: 150px;">Seabank</div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Logo - Modified untuk mencegah klik dan download -->
+    <div class="logo-container">
+        <div class="logo-protect" id="logoProtect"></div>
+        <!-- Ganti "Logo.png" dengan nama file logo Anda -->
+        <img src="Logo.png" alt="Logo" class="logo-image" id="logoImage">
+    </div>
+    
+    <!-- Referral Table Minimalist -->
+    <section class="referral-section">
+        <div class="referral-title">REFERRAL EVENT 🎁</div>
+        <div class="referral-subtitle">undang teman untuk mendapat income tambahan!</div>
+        
+        <table class="referral-table">
+            <tbody>
+                <tr>
+                    <td>1 Orang</td>
+                    <td>$2</td>
+                </tr>
+                <tr>
+                    <td>2 Orang</td>
+                    <td>$4 + $1<span class="star-badge">★</span></td>
+                </tr>
+                <tr>
+                    <td>3 Orang</td>
+                    <td>$6</td>
+                </tr>
+                <tr>
+                    <td>4 Orang</td>
+                    <td>$8</td>
+                </tr>
+                <tr>
+                    <td>5 Orang</td>
+                    <td>$10 + $1 <span class="star-badge">★</span></td>
+                </tr>
+                <tr>
+                    <td>6 Orang</td>
+                    <td>$12</td>
+                </tr>
+                <tr>
+                    <td>7 Orang</td>
+                    <td>$14</td>
+                </tr>
+                <tr>
+                    <td>8 Orang</td>
+                    <td>$16 + $1 <span class="star-badge">★</span></td>
+                </tr>
+                <tr>
+                    <td>9 Orang</td>
+                    <td>$18</td>
+                </tr>
+                <tr>
+                    <td>10 Orang</td>
+                    <td>$20 + $1 <span class="star-badge">★</span></td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <!-- Bonus Total Referral Table - Minimalist -->
+        <table class="referral-bonus-table">
+            <thead>
+                <tr>
+                    <th colspan="2">Akumulasi Bonus</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>undang 2 orang total</td>
+                    <td>Rp. 80.000</td>
+                </tr>
+                <tr>
+                    <td>undang 5 orang total</td>
+                    <td>Rp. 192.000</td>
+                </tr>
+                <tr>
+                    <td>undang 10 orang total</td>
+                    <td>Rp. 384.000</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <!-- Referrer Button - Diperkecil dengan warna putih dan text hitam -->
+        <div class="referrer-btn-container">
+            <a href="https://wa.me/6285797862151" target="_blank" class="referrer-btn">
+                <span>🎯</span>
+                Join Referrer
+            </a>
+        </div>
+    </section>
+    
+    <!-- WhatsApp Section dengan Gradient - Text hitam -->
+    <section class="whatsapp-section">
+        <div class="whatsapp-gradient"></div>
+        <div class="whatsapp-content">
+            <div class="whatsapp-info">
+                informasi selanjutnya akan di infokan di grup<br>
+                mulai mekanisme Sewa dan sebagainya<br>
+                silahkan join
+            </div>
+            
+            <a href="https://chat.whatsapp.com/LQh8zCpHqEmAWkyCAqtrs1" target="_blank" class="whatsapp-btn">
+                <span>💬</span>
+                Join Grup WhatsApp
+            </a>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer>
+        <div>Sewa LinkedIn</div>
+    </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Smooth fade in
+            document.body.style.opacity = '0';
+            document.body.style.transition = 'opacity 0.4s ease';
+            
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+            }, 10);
+            
+            // Calendar Modal Functionality
+            const calendarIcon = document.getElementById('calendarIcon');
+            const modalOverlay = document.getElementById('modalOverlay');
+            const closeModal = document.getElementById('closeModal');
+            
+            // Open modal
+            calendarIcon.addEventListener('click', function() {
+                modalOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+            
+            // Close modal
+            closeModal.addEventListener('click', function() {
+                modalOverlay.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            });
+            
+            // Close modal when clicking outside
+            modalOverlay.addEventListener('click', function(e) {
+                if (e.target === modalOverlay) {
+                    modalOverlay.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+            
+            // Close modal with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
+                    modalOverlay.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+            
+            // Auto-play video on load
+            const bannerVideo = document.querySelector('.banner-video');
+            if (bannerVideo) {
+                bannerVideo.play().catch(e => {
+                    console.log("Autoplay prevented, showing fallback");
+                });
+            }
+            
+            // Carousel functionality
+            const postsCarousel = document.getElementById('postsCarousel');
+            const carouselIndicator = document.getElementById('carouselIndicator');
+            const posts = document.querySelectorAll('.linkedin-post');
+            const dots = document.querySelectorAll('.carousel-dot');
+            let currentIndex = 0;
+            let isAnimating = false;
+            
+            // Update carousel position
+            function updateCarousel(index) {
+                if (isAnimating) return;
+                isAnimating = true;
+                
+                // Update current index
+                currentIndex = index;
+                
+                // Update dots
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === index);
+                });
+                
+                // Update posts positions
+                posts.forEach((post, i) => {
+                    post.classList.remove('post-active', 'post-next', 'post-prev');
+                    
+                    if (i === index) {
+                        post.classList.add('post-active');
+                        carouselIndicator.textContent = `Postingan ${i + 1} dari ${posts.length}`;
+                    } else if (i === (index + 1) % posts.length) {
+                        post.classList.add('post-next');
+                    } else if (i === (index - 1 + posts.length) % posts.length) {
+                        post.classList.add('post-prev');
+                    }
+                });
+                
+                // Reset animation flag
+                setTimeout(() => {
+                    isAnimating = false;
+                }, 600);
+            }
+            
+            // Click on carousel to advance
+            postsCarousel.addEventListener('click', function(e) {
+                if (!isAnimating) {
+                    const nextIndex = (currentIndex + 1) % posts.length;
+                    updateCarousel(nextIndex);
+                }
+            });
+            
+            // Dot click navigation
+            dots.forEach((dot, index) => {
+                dot.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (!isAnimating && index !== currentIndex) {
+                        updateCarousel(index);
+                    }
+                });
+            });
+            
+            // Wheel scroll navigation
+            let wheelTimeout;
+            postsCarousel.addEventListener('wheel', function(e) {
+                e.preventDefault();
+                
+                clearTimeout(wheelTimeout);
+                wheelTimeout = setTimeout(() => {
+                    if (!isAnimating) {
+                        if (e.deltaY > 0) {
+                            // Scroll down - next
+                            const nextIndex = (currentIndex + 1) % posts.length;
+                            updateCarousel(nextIndex);
+                        } else {
+                            // Scroll up - previous
+                            const prevIndex = (currentIndex - 1 + posts.length) % posts.length;
+                            updateCarousel(prevIndex);
+                        }
+                    }
+                }, 150);
+            }, { passive: false });
+            
+            // Touch swipe support
+            let touchStartX = 0;
+            let touchEndX = 0;
+            
+            postsCarousel.addEventListener('touchstart', function(e) {
+                touchStartX = e.changedTouches[0].screenX;
+            }, { passive: true });
+            
+            postsCarousel.addEventListener('touchend', function(e) {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            }, { passive: true });
+            
+            function handleSwipe() {
+                if (!isAnimating) {
+                    const swipeThreshold = 50;
+                    const diff = touchStartX - touchEndX;
+                    
+                    if (Math.abs(diff) > swipeThreshold) {
+                        if (diff > 0) {
+                            // Swipe left - next
+                            const nextIndex = (currentIndex + 1) % posts.length;
+                            updateCarousel(nextIndex);
+                        } else {
+                            // Swipe right - previous
+                            const prevIndex = (currentIndex - 1 + posts.length) % posts.length;
+                            updateCarousel(prevIndex);
+                        }
+                    }
+                }
+            }
+            
+            // Keyboard navigation for carousel
+            document.addEventListener('keydown', function(e) {
+                if (!isAnimating) {
+                    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                        const nextIndex = (currentIndex + 1) % posts.length;
+                        updateCarousel(nextIndex);
+                    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                        const prevIndex = (currentIndex - 1 + posts.length) % posts.length;
+                        updateCarousel(prevIndex);
+                    }
+                }
+            });
+            
+            // Auto-rotate carousel every 10 seconds
+            let carouselInterval = setInterval(() => {
+                if (!isAnimating && !document.hidden) {
+                    const nextIndex = (currentIndex + 1) % posts.length;
+                    updateCarousel(nextIndex);
+                }
+            }, 10000);
+            
+            // Pause auto-rotation on hover
+            postsCarousel.addEventListener('mouseenter', () => {
+                clearInterval(carouselInterval);
+            });
+            
+            postsCarousel.addEventListener('mouseleave', () => {
+                carouselInterval = setInterval(() => {
+                    if (!isAnimating && !document.hidden) {
+                        const nextIndex = (currentIndex + 1) % posts.length;
+                        updateCarousel(nextIndex);
+                    }
+                }, 10000);
+            });
+            
+            // Initialize carousel
+            updateCarousel(0);
+            
+            // Proteksi Logo - Mencegah klik kanan dan download
+            const logoImage = document.getElementById('logoImage');
+            const logoProtect = document.getElementById('logoProtect');
+            
+            // Mencegah klik kanan pada logo
+            if (logoImage) {
+                logoImage.addEventListener('contextmenu', function(e) {
+                    e.preventDefault();
+                    return false;
+                });
+                
+                // Mencegah drag and drop
+                logoImage.addEventListener('dragstart', function(e) {
+                    e.preventDefault();
+                    return false;
+                });
+            }
+            
+            // Overlay untuk mencegah semua interaksi
+            if (logoProtect) {
+                logoProtect.addEventListener('contextmenu', function(e) {
+                    e.preventDefault();
+                    return false;
+                });
+                
+                logoProtect.addEventListener('mousedown', function(e) {
+                    e.preventDefault();
+                    return false;
+                });
+                
+                logoProtect.addEventListener('selectstart', function(e) {
+                    e.preventDefault();
+                    return false;
+                });
+            }
+            
+            // Tambahkan event listener untuk mencegah klik kiri juga
+            if (logoImage && logoProtect) {
+                const logoContainer = document.querySelector('.logo-container');
+                logoContainer.addEventListener('click', function(e) {
+                    if (e.target === logoProtect || e.target === logoImage || e.target === logoContainer) {
+                        e.preventDefault();
+                        return false;
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
